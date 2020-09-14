@@ -6,6 +6,11 @@ Export the contents of a files in a dir to markdown code blocks.
 This can be used for example as a helper for written assignments when the
 contents need to be included as a text export.
 
+## Requirements
+1. Linux. Note currently onls runs on linux due to executing the `tree` command.
+(Respective code portion can be removed.)
+2. Python 3.6+
+
 ## Install
 1. Download this project.
 2. Install dependencies: `pip install -r requirements.txt`
