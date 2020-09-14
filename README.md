@@ -7,7 +7,7 @@ This can be used for example as a helper for written assignments when the
 contents need to be included as a text export.
 
 ## Requirements
-1. Linux. Note currently onls runs on linux due to executing the `tree` command.
+1. Linux. Currently only runs on linux due to executing the `tree` command.
 (Respective code portion can be removed.)
 2. Python 3.6+
 
