@@ -1,3 +1,14 @@
+"""
+Export the contents of a files in a dir to markdown code blocks.
+This can be used for example as a helper for written assignments when the
+contents need to be included as a text export.
+
+A tree of the directory is also prepended.
+
+Files and dirs can also be ignore via gitignore style patterns provided in
+a patterns.list file. (Note that pattern might not affect the tree creation.)
+
+"""
 import sys
 
 from pathlib import Path
@@ -6,7 +17,7 @@ from subprocess import check_output
 
 from pathspec import PathSpec
 
-OUTPUT_FILE: Final[Path] = Path("comp.md")
+
 PATTERNS_FILE: Final[str] = "patterns.list"
 with open(PATTERNS_FILE, "r") as fh:
     SPEC: Final[PathSpec] = PathSpec.from_lines("gitwildmatch", fh)
@@ -32,7 +43,7 @@ def extract_text(p: Path) -> str:
     return make_markdown(suffix, text)
 
 
-def main(proj_dir: Path) -> None:
+def main(proj_dir: Path, output_file: Path) -> None:
     # some basic checks
     if not proj_dir.exists():
         raise Exception(f"{proj_dir} does not exist.")
@@ -45,16 +56,17 @@ def main(proj_dir: Path) -> None:
         if p.is_file() and not SPEC.match_file(p):
             name = p.relative_to(proj_dir)
             try:
-                code_blocks[name] = make_markdown(p)
+                code_blocks[name] = make_markdown(p.suffix[1:], p.read_text())
             except Exception:
                 print(f"Can not read: {name}")
 
     # compile to single file
     tree = make_filetree(proj_dir)
     comp = "\n\n".join((tree, *code_blocks.values()))
-    OUTPUT_FILE.write_text(comp)
+    output_file.write_text(comp)
 
 
 if __name__ == "__main__":
     proj_dir = Path(sys.argv[1])
-    main(proj_dir)
+    output_file = Path(sys.argv[2] if len(sys.argv) > 2 else "listings.md")
+    main(proj_dir, output_file)
