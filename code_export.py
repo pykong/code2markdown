@@ -24,7 +24,7 @@ with open(PATTERNS_FILE, "r") as fh:
 
 
 def make_markdown(suffix: str, text: str) -> str:
-    return f"'''{suffix}\n{text}\n'''"
+    return f"```{suffix}\n{text}\n```"
 
 
 def make_filetree(p: Path) -> str:
@@ -56,12 +56,15 @@ def main(proj_dir: Path, output_file: Path) -> None:
         if p.is_file() and not SPEC.match_file(p):
             name = p.relative_to(proj_dir)
             try:
-                code_blocks[name] = make_markdown(p.suffix[1:], p.read_text())
+                code_blocks[name] = f"## `{name}`\n" + make_markdown(
+                    p.suffix[1:], p.read_text()
+                )
             except Exception:
                 print(f"Can not read: {name}")
 
     # compile to single file
     tree = make_filetree(proj_dir)
+    tree = ""  # TODO: Remove
     comp = "\n\n".join((tree, *code_blocks.values()))
     output_file.write_text(comp)
 
