@@ -9,6 +9,7 @@ Files and dirs can also be ignore via gitignore style patterns provided in
 a patterns.list file. (Note that pattern might not affect the tree creation.)
 
 """
+import re
 import sys
 
 from pathlib import Path
@@ -25,6 +26,14 @@ with open(PATTERNS_FILE, "r") as fh:
 
 def make_markdown(suffix: str, text: str) -> str:
     return f"```{suffix}\n{text}\n```"
+
+
+def make_code_block(name: Path, code: str) -> str:
+    # https://github.com/lierdakil/pandoc-crossref/issues/278
+    clean_caption = re.sub("_", "", str(name))
+    cleaned_name = re.sub("[^a-zA-Z0-9_]", "_", str(name))
+    label = "{#lst:" + cleaned_name + " " + name.suffix + "}"
+    return f"Listing: `{clean_caption}`\n```{label}\n{code}```"
 
 
 def make_filetree(p: Path) -> str:
@@ -56,9 +65,7 @@ def main(proj_dir: Path, output_file: Path) -> None:
         if p.is_file() and not SPEC.match_file(p):
             name = p.relative_to(proj_dir)
             try:
-                code_blocks[name] = f"## `{name}`\n" + make_markdown(
-                    p.suffix[1:], p.read_text()
-                )
+                code_blocks[name] = make_code_block(name, p.read_text())
             except Exception:
                 print(f"Can not read: {name}")
 
